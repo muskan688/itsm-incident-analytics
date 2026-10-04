@@ -1,0 +1,10 @@
+version: 2
+
+sources:
+  - name: raw
+    description: >
+      Incident event log from a real ServiceNow instance (UCI Machine Learning
+      Repository, dataset 498, CC BY 4.0). Loaded as text by src/load_raw.py.
+    tables:
+      - name: incident_events
+        description: One row per change of an incident (141,712 rows, 24,918 incidents).

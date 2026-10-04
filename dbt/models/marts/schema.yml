@@ -1,0 +1,91 @@
+version: 2
+
+models:
+  - name: fact_incident
+    description: One row per incident (24,918), taken from its last event.
+    columns:
+      - name: incident_number
+        tests: [unique, not_null]
+      - name: opened_at
+        tests: [not_null]
+      - name: closed_at
+        tests: [not_null]
+      - name: priority_code
+        tests:
+          - accepted_values:
+              arguments:
+                values: [1, 2, 3, 4]
+                quote: false
+      - name: made_sla
+        tests: [not_null]
+      - name: assignment_group
+        tests:
+          - relationships:
+              arguments:
+                to: ref('dim_assignment_group')
+                field: assignment_group
+      - name: location
+        tests:
+          - relationships:
+              arguments:
+                to: ref('dim_location')
+                field: location
+      - name: category
+        tests:
+          - relationships:
+              arguments:
+                to: ref('dim_category')
+                field: category
+
+  - name: fact_incident_event
+    description: One row per event (141,712) with the time spent in each state.
+    columns:
+      - name: incident_number
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('fact_incident')
+                field: incident_number
+      - name: event_seq
+        tests: [not_null]
+
+  - name: dim_date
+    columns:
+      - name: date_day
+        tests: [unique, not_null]
+
+  - name: dim_assignment_group
+    columns:
+      - name: assignment_group
+        tests: [unique, not_null]
+
+  - name: dim_location
+    columns:
+      - name: location
+        tests: [unique, not_null]
+
+  - name: dim_category
+    columns:
+      - name: category
+        tests: [not_null]
+
+  - name: mart_kpi_monthly
+    columns:
+      - name: month_start
+        tests: [unique, not_null]
+
+  - name: mart_state_time
+    columns:
+      - name: incident_state
+        tests: [unique, not_null]
+
+  - name: mart_group_performance
+    columns:
+      - name: assignment_group
+        tests: [unique, not_null]
+
+  - name: mart_backlog_daily
+    columns:
+      - name: date_day
+        tests: [unique, not_null]
