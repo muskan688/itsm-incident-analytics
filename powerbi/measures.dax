@@ -1,0 +1,40 @@
+// DAX for the ITSM incident report. Source: powerbi/data/itsm_marts.xlsx
+// Sheets: fact_incident (one row per incident), mart_kpi_monthly, mart_state_time,
+//         mart_group_performance, mart_backlog_daily.
+// The mart sheets are already aggregated, so visuals built on them are not filtered by fact_incident.
+
+// ---- Measures on fact_incident (add them with "New measure") ----
+
+Incidents = COUNTROWS(fact_incident)
+
+SLA met % =
+DIVIDE(CALCULATE(COUNTROWS(fact_incident), fact_incident[made_sla] = TRUE()), [Incidents])
+
+Median resolution (h) = MEDIAN(fact_incident[resolution_hours])
+
+Average resolution (h) = AVERAGE(fact_incident[resolution_hours])
+
+Reopened % =
+DIVIDE(CALCULATE(COUNTROWS(fact_incident), fact_incident[was_reopened] = TRUE()), [Incidents])
+
+Unresolved incidents =
+CALCULATE(COUNTROWS(fact_incident), fact_incident[is_resolved] = FALSE())
+
+Average reassignments = AVERAGE(fact_incident[reassignment_count])
+
+// ---- Text versions for the cards ----
+// The card visual abbreviates large numbers (24,918 becomes 25K). FORMAT keeps the exact number.
+
+Incidents shown = FORMAT([Incidents], "#,0")
+
+Unresolved shown = FORMAT([Unresolved incidents], "#,0")
+
+// ---- Calculated column on fact_incident (use "New column", not "New measure") ----
+
+Reassignment group =
+SWITCH(
+    TRUE(),
+    fact_incident[reassignment_count] = 0, "0 reassignments",
+    fact_incident[reassignment_count] <= 2, "1-2 reassignments",
+    "3+ reassignments"
+)

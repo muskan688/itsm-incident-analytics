@@ -84,17 +84,30 @@ python -m pytest                 # small unit tests
 
 The pipeline can be run again at any time. The raw table is emptied and reloaded, and dbt rebuilds all models.
 
+## Power BI report
+
+Report file: [`powerbi/itsm_incident_report.pbix`](powerbi/itsm_incident_report.pbix), built on the Excel export of the marts. DAX is in [`powerbi/measures.dax`](powerbi/measures.dax).
+
+**Page 1: SLA and resolution time.** Four KPI cards and two charts that show the main finding: the more reassignments an incident has, the less often it meets its SLA and the longer it takes.
+
+![Power BI report, page 1](docs/powerbi_overview.png)
+
+**Page 2: backlog and where the time goes.** Open incidents per day, the time spent in each ticket state, and a table of assignment groups.
+
+![Power BI report, page 2](docs/powerbi_backlog_time.png)
+
+The figures on the report match the dbt tables: 24,918 incidents, 63.4% SLA met, median resolution 22.1 hours, 1,556 incidents closed without resolution.
+
 ## Project layout
 
 ```
 src/        load_raw.py, run_pipeline.py, export_for_powerbi.py
 dbt/        dbt project: models (staging, intermediate, marts), macros, tests
-powerbi/    Excel export of the marts (for the Power BI report)
+powerbi/    Power BI report, DAX measures and the Excel export of the marts
 tests/      unit tests
 ```
 
 ## Next steps
 
-- A Power BI report on `powerbi/data/itsm_marts.xlsx`.
 - Process analysis of the state changes (most common paths, rework loops).
 - SLA targets per priority, to recompute the SLA flag instead of using the one from ServiceNow.
